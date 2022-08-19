@@ -82,7 +82,7 @@ class SsAgent(mesa.Agent):
                 if len(bacteria) > 0:
                     bt_inside = self.random.choice(bacteria)
                     self.metabolism += 4
-
+                    self.infectada = True
                     self.model.grid.remove_agent(bt_inside)
                     self.model.schedule.remove(bt_inside)
         else:
@@ -136,7 +136,7 @@ class Sugar(mesa.Agent):
 
 class Bt(mesa.Agent):
     def __init__(
-        self, unique_id, pos, model, moore=False, sugar=0, metabolism=0, vento=True
+        self, unique_id, pos, model, moore=False, sugar=0, metabolism=0, vento=0
     ):
         super().__init__(unique_id, model)
         self.pos = pos
@@ -154,7 +154,7 @@ class Bt(mesa.Agent):
         neighbors = [
             i
             for i in self.model.grid.get_neighborhood(
-                self.pos, self.moore, False, radius=3
+                self.pos, self.moore, False, radius=self.vento
             )
             if not self.is_occupied(i)
         ]
@@ -165,6 +165,9 @@ class Bt(mesa.Agent):
     def step(self):
         if self.vento:
             self.move()
+
+        self.sugar = self.sugar - self.metabolism
+
         if self.sugar <= 0:
             self.model.grid.remove_agent(self)
             self.model.schedule.remove(self)

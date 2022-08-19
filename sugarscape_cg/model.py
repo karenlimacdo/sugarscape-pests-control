@@ -23,7 +23,7 @@ class SugarscapeCg(mesa.Model):
 
     verbose = True  # Print-monitoring
 
-    def __init__(self, width=50, height=50, initial_population=100, inicial_population_bt=150, vento=0, current_id=0):
+    def __init__(self, width=50, height=50, initial_population=100, initial_population_bt=150, vento=0, current_id=0):
         """
         Create a new Constant Growback model with the given parameters.
         Args:
@@ -34,7 +34,7 @@ class SugarscapeCg(mesa.Model):
         self.width = width
         self.height = height
         self.initial_population = initial_population
-        self.initial_population_bt = inicial_population_bt
+        self.initial_population_bt = initial_population_bt
         self.vento = vento
         self.current_id = current_id
 
@@ -43,10 +43,10 @@ class SugarscapeCg(mesa.Model):
         self.grid = MultiGrid(self.width, self.height, torus=False)
         self.datacollector = datacollection.DataCollector(
             {
+                "Lagarta Saudavel": lambda m: m.schedule.get_type_count(
+                    SsAgent, lambda x: x.infectada == False),
                 "Lagarta Infectada": lambda m: m.schedule.get_type_count(
                     SsAgent, lambda x: x.infectada == True),
-                "Lagarta Saudável": lambda m: m.schedule.get_type_count(
-                    SsAgent),
                 "Bacteria": lambda m: m.schedule.get_type_count(Bt)
             }
         )
@@ -72,7 +72,7 @@ class SugarscapeCg(mesa.Model):
             sugar = self.random.randrange(6, 25)
             metabolism = self.random.randrange(2, 4)
             vision = self.random.randrange(1, 6)
-            ssa = SsAgent(agent_id, (x, y), self, False, sugar, metabolism, vision)
+            ssa = SsAgent(agent_id, (x, y), self, False, sugar, metabolism, vision, False)
             agent_id += 1
             self.current_id = agent_id
             self.grid.place_agent(ssa, (x, y))
@@ -83,7 +83,7 @@ class SugarscapeCg(mesa.Model):
             y = self.random.randrange(self.height)
             sugar = self.random.randrange(10, 35)
             metabolism = self.random.randrange(4, 12)
-            ssa = Bt(agent_id, (x, y), self, False, sugar, metabolism)
+            ssa = Bt(agent_id, (x, y), self, False, sugar, metabolism, vento)
             agent_id += 1
             self.current_id = agent_id
             self.grid.place_agent(ssa, (x, y))
@@ -97,7 +97,7 @@ class SugarscapeCg(mesa.Model):
         # collect data
         self.datacollector.collect(self)
         if self.verbose:
-            print([self.schedule.time, self.schedule.get_type_count(SsAgent, lambda x: x.infectada == True), self.schedule.get_type_count(SsAgent), self.schedule.get_type_count(Bt)])
+            print([self.schedule.time, self.schedule.get_type_count(SsAgent, lambda x: x.infectada == True), self.schedule.get_type_count(SsAgent, lambda x: x.infectada == False), self.schedule.get_type_count(Bt)])
 
     def run_model(self, step_count=200):
 
@@ -105,7 +105,7 @@ class SugarscapeCg(mesa.Model):
             print(
                 "Initial number Sugarscape Agent: ",
                 self.schedule.get_type_count(SsAgent, lambda x: x.infectada == True),
-                self.schedule.get_type_count(SsAgent),
+                self.schedule.get_type_count(SsAgent, lambda x: x.infectada == False),
                 self.schedule.get_type_count(Bt)
             )
 
@@ -117,6 +117,6 @@ class SugarscapeCg(mesa.Model):
             print(
                 "Final number Sugarscape Agent: ",
                 self.schedule.get_type_count(SsAgent, lambda x: x.infectada == True),
-                self.schedule.get_type_count(SsAgent),
+                self.schedule.get_type_count(SsAgent, lambda x: x.infectada == False),
                 self.schedule.get_type_count(Bt)
             )

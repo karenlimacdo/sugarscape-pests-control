@@ -4,7 +4,7 @@ from .model import SugarscapeCg
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.modules import ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.UserParam import Checkbox, Slider, StaticText
+from mesa.visualization.UserParam import UserSettableParameter
 
 color_dic = {4: "#005C00", 3: "#008300", 2: "#00AA00", 1: "#00F800"}
 
@@ -38,26 +38,22 @@ def SsAgent_portrayal(agent):
 
     return portrayal
 
+model_params = {
+    "width": 50,
+    "height": 50,
+    "initial_population": UserSettableParameter("slider", "Initial Population", 100, 0, 200, 10),
+    "initial_population_bt": UserSettableParameter("slider", "Bacteria Population", 50, 0, 200, 10),
+    "vento": UserSettableParameter("slider", "Vento", 0, 0, 5, 1),
+}
 
 canvas_element = CanvasGrid(SsAgent_portrayal, 50, 50, 500, 500)
 chart_element = ChartModule(
-    [{"Label": "Lagarta Saudavel", "Color": "#AA0000"},
+    [{"Label": "Lagarta Saudavel", "Color": "red"},
     {"Label": "Bacteria", "Color": "green"},
     {"Label": "Lagarta Infectada", "Color": "yellow"}]
 )
 
-model_params = {
-    # The following line is an example to showcase StaticText.
-    "title": StaticText("Parameters:"),
-    "vento": Checkbox("Vento", False),
-    "initial_sheep": Slider(
-        "Initial Sheep Population", 100, 10, 300
-    ),
-    "initial_wolves": Slider("Initial Wolf Population", 50, 10, 300),
-}
-
 server = ModularServer(
-    SugarscapeCg, [canvas_element, chart_element], "Sugarscape 2 Constant Growback"#, model_params
+    SugarscapeCg, [canvas_element, chart_element], "Sugarscape 2 Constant Growback", model_params
 )
-server.port = 8521
 # server.launch()
